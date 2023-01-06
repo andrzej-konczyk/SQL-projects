@@ -229,6 +229,10 @@ select * from player_stats;
 
 
 
+--Table 5 Squad Standard Stats --
+
+
+
 
 
 
