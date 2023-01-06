@@ -231,7 +231,52 @@ select * from player_stats;
 
 --Table 5 Squad Standard Stats --
 
+create table squad_standard_stats(
+	id serial,
+	Team varchar(100),
+	Number_of_Payers_Used integer,
+	Average_Age_of_the_Team numeric,
+	Average_Posession numeric,
+	Matches_Played integer,
+	Start_by_Players integer,
+	Total_Playing_Time integer,
+	_90_Minutes_Played numeric,
+	Goals integer,
+	Assists integer,
+	Non_Penalty_Golas integer,
+	Penalties_Converted integer,
+	Penalties_Taken integer,
+	Yellow_Cards integer,
+	Red_Cards integer,
+	Goals_per_90_Minutes numeric,
+	Assists_per_90_Minutes numeric,
+	Goals_and_Assists_per_90_Minutes numeric,
+	Goals_excluding_Penalties_per_90_Minutes numeric,
+	Goals_and_Assists_excluding_Penalties_per_90_Minutes numeric,
+	Expected_xG numeric,
+	Expected_Non_Penalty_xG numeric,
+	Expected_xAG numeric,
+	Expected_Non_Penalty_xG_and_xAG numeric,
+	Expected_xG_per_90_Minutes numeric,
+	Expected_xAG_per_90_Minutes numeric,
+	Expected_xG_and_xAG_per_90_Minutes numeric,
+	Expected_Non_Penalty_xG_per_90_Minutes numeric,
+	Expected_Non_Penalty_xG_and_xAG_per_90_Minutes numeric,
+	primary key(id)
+);
 
+drop table squad_standard_stats; -- that to be used only when you would like to make modifications in creation of table
+
+COPY squad_standard_stats(Team,Number_of_Payers_Used,Average_Age_of_the_Team,Average_Posession,Matches_Played,Start_by_Players,Total_Playing_Time,_90_Minutes_Played,Goals,Assists,
+Non_Penalty_Golas,Penalties_Converted,Penalties_Taken,Yellow_Cards,Red_Cards,Goals_per_90_Minutes,Assists_per_90_Minutes,Goals_and_Assists_per_90_Minutes,
+Goals_excluding_Penalties_per_90_Minutes,Goals_and_Assists_excluding_Penalties_per_90_Minutes,Expected_xG,Expected_Non_Penalty_xG,Expected_xAG,Expected_Non_Penalty_xG_and_xAG,Expected_xG_per_90_Minutes,
+Expected_xAG_per_90_Minutes,Expected_xG_and_xAG_per_90_Minutes,Expected_Non_Penalty_xG_per_90_Minutes,Expected_Non_Penalty_xG_and_xAG_per_90_Minutes)
+FROM 'C:\Users\andrz\Desktop\Prywatne\SQL projects\Quatar 2022 FIFA World Cup\Squad Standard Stats.csv'
+DELIMITER ','
+CSV HEADER;
+
+
+select * from squad_standard_stats;
 
 
 
