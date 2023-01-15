@@ -111,3 +111,52 @@ where non_penalty_xg_and_xag is null;
 select * 
 from player_stats
 where not (player_stats is not null);
+
+/*in tbales oppsition and standard sqad stats we have columns with 'expected' - as there are no columns like only 'xg' etc - I will simply rename it nad use them */
+
+/* rename of columns for table opposite squad stats */
+
+select * from opposition_standard_stats;
+
+alter table opposition_standard_stats 
+	rename column expected_xg to xg;
+alter table opposition_standard_stats
+	rename column expected_non_penalty_xg to non_penalty_xg;
+alter table opposition_standard_stats
+	rename column expected_xag to xag;
+alter table opposition_standard_stats
+	rename column expected_non_penalty_xg_and_xag to non_penalty_xg_and_xag;
+alter table opposition_standard_stats
+	rename column expected_xg_per_90_minutes to xg_per_90_minutes;
+alter table opposition_standard_stats
+	rename column expected_xag_per_90_minutes to xag_per_90_minutes;
+alter table opposition_standard_stats
+	rename column expected_xg_and_xag_per_90_minutes to xg_and_xag_per_90_minutes;
+alter table opposition_standard_stats
+	rename column expected_non_penalty_xg_per_90_minutes to non_penalty_xg_per_90_minutes;
+alter table opposition_standard_stats
+	rename column expected_non_penalty_xg_and_xag_per_90_minutes to non_penalty_xg_and_xag_per_90_minutes;
+
+
+/* rename of columns for table team squad stats */
+
+select * from squad_standard_stats;
+
+alter table squad_standard_stats
+	rename column expected_xg to xg;
+alter table squad_standard_stats
+	rename column expected_non_penalty_xg to non_penalty_xg;
+alter table squad_standard_stats
+	rename column expected_xag to xag;
+alter table squad_standard_stats
+	rename column expected_non_penalty_xg_and_xag to non_penalty_xg_and_xag;
+alter table squad_standard_stats
+	rename column expected_xg_per_90_minutes to xg_per_90_minutes;
+alter table squad_standard_stats
+	rename column expected_xag_per_90_minutes to xag_per_90_minutes;
+alter table squad_standard_stats
+	rename column expected_xg_and_xag_per_90_minutes to xg_and_xag_per_90_minutes;
+alter table squad_standard_stats
+	rename column expected_non_penalty_xg_per_90_minutes to non_penalty_xg_per_90_minutes;
+alter table squad_standard_stats
+	rename column expected_non_penalty_xg_and_xag_per_90_minutes to non_penalty_xg_and_xag_per_90_minutes;
