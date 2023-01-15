@@ -36,6 +36,78 @@ where not (squad_standard_stats is not null);
 
 -- check nulls --
 
+
+/* check number of rows with any null values */
+select count(*)
+from player_stats
+where not (player_stats is not null);
+
+select * 
+from player_stats
+where not (player_stats is not null);
+
+/*update base on www.infogol.net. I will update odny exg,xag etc without 'expected' as such data is available. I will make assumption that xg and non_penalty xg 
+ * here is the same as probably such players did not had chance to shoot penalty */
+
+update player_stats 
+set xg = 0.14
+where xg is null and id = 525;
+
+update player_stats 
+set non_penalty_xg = 0.14
+where non_penalty_xg is null and id = 525;
+
+update player_stats 
+set xag = 0.14
+where xag is null and id = 525;
+
+
+update player_stats 
+set xg = 0.12
+where xg is null and id = 548;
+
+update player_stats 
+set non_penalty_xg = 0.11
+where non_penalty_xg is null and id = 548;
+
+update player_stats 
+set xag = 0.11
+where xag is null and id = 548;
+
+/* Other values are 0 - I will change nulls to 0 after removing columns with 'expected' as here I will not use them as I do not have all data */
+
+alter table player_stats
+	drop column expected_xg, 
+	drop column expected_non_penalty_xg, 
+	drop column expected_xag, 
+	drop column expected_non_penalty_xg_and_xag;
+
+/* xg_and_xag = sum xg and xag, the same for non_penalty */
+
+update player_stats 
+set xag = 0
+where xag is null;
+
+update player_stats 
+set xg = 0
+where xg is null;
+
+update player_stats 
+set non_penalty_xg = 0
+where non_penalty_xg is null;
+
+/* now sum */
+
+update player_stats 
+set xg_and_xag = xg + xag 
+where xg_and_xag is null;
+
+update player_stats 
+set non_penalty_xg_and_xag = non_penalty_xg + xag 
+where non_penalty_xg_and_xag is null;
+
+/* check if there are still nulls - expected 0 rows*/
+
 select * 
 from player_stats
 where not (player_stats is not null);
