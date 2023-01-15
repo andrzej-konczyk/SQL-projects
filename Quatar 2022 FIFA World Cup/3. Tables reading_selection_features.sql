@@ -160,3 +160,31 @@ alter table squad_standard_stats
 	rename column expected_non_penalty_xg_per_90_minutes to non_penalty_xg_per_90_minutes;
 alter table squad_standard_stats
 	rename column expected_non_penalty_xg_and_xag_per_90_minutes to non_penalty_xg_and_xag_per_90_minutes;
+
+/* for table match_by_match I will define match whioch are in group phase as GR and redefine such column to 'phase' */
+
+select * from match_by_match_stat;
+
+alter table match_by_match_stat 
+	rename column match to phase;
+	
+update match_by_match_stat 
+set phase = 'GR'
+where phase not in('R16', 'QF', 'SF', '3P', 'F');
+
+/*check after changes */
+
+select * from match_by_match_stat
+order by id asc;
+
+/* in such situation our id is also match number */
+
+/* I will join opposit and squad tables, but firstly remove 'VS' from opposition */
+
+alter table opposition_standard_stats 
+	rename column squad to opposite;
+
+select * from opposition_standard_stats;
+
+select * from squad_standard_stats;
+
