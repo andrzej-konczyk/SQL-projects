@@ -184,7 +184,99 @@ order by id asc;
 alter table opposition_standard_stats 
 	rename column squad to opposite;
 
-select * from opposition_standard_stats;
+update opposition_standard_stats 
+set opposite = regexp_replace(opposite, 'VS(?:$|\W)', '') ;
 
-select * from squad_standard_stats;
+alter table opposition_standard_stats 
+	rename column number_of_payers_used to opposite_number_of_players_used;
+alter table opposition_standard_stats 
+	rename column Average_Age_of_the_Team to opposite_Average_Age_of_the_Team;
+alter table opposition_standard_stats 
+	rename column Average_Posession to opposite_Average_Posession;
+alter table opposition_standard_stats 
+	rename column Matches_Played  to opposite_Matches_Played ;
+alter table opposition_standard_stats 
+	rename column Start_by_Players  to opposite_Start_by_Players ;
+alter table opposition_standard_stats 
+	rename column Total_Playing_Time  to opposite_Total_Playing_Time ;
+alter table opposition_standard_stats 
+	rename column _90_Minutes_Played  to opposite_90_Minutes_Played ;
+alter table opposition_standard_stats 
+	rename column Assists  to opposite_Assists ;
+alter table opposition_standard_stats 
+	rename column Non_Penalty_Golas  to opposite_Non_Penalty_Golas ;
+alter table opposition_standard_stats 
+	rename column Penalties_Converted  to opposite_Penalties_Converted ;
+alter table opposition_standard_stats 
+	rename column Penalties_Taken to opposite_Penalties_Taken ;
+alter table opposition_standard_stats 
+	rename column Yellow_Cards to opposite_Yellow_Cards ;
+alter table opposition_standard_stats 
+	rename column Red_Cards to opposite_Red_Cards ;
+alter table opposition_standard_stats 
+	rename column Goals_per_90_Minutes to opposite_Goals_per_90_Minutes ;
+alter table opposition_standard_stats 
+	rename column Assists_per_90_Minutes to opposite_Assists_per_90_Minutes ;
+alter table opposition_standard_stats 
+	rename column Goals_and_Assists_per_90_Minutes to opposite_Goals_and_Assists_per_90_Minutes ;
+alter table opposition_standard_stats 
+	rename column Goals_excluding_Penalties_per_90_Minutes to opposite_Goals_excluding_Penalties_per_90_Minutes ;
+alter table opposition_standard_stats 
+	rename column Goals_and_Assists_excluding_Penalties_per_90_Minutes to opposite_Goals_and_Assists_excluding_Penalties_per_90_Minutes ;	
+alter table opposition_standard_stats 
+	rename column xG to opposite_xG ;
+alter table opposition_standard_stats 
+	rename column Non_Penalty_xG to opposite_Non_Penalty_xG;
+alter table opposition_standard_stats 
+	rename column xAG to opposite_xAG;
+alter table opposition_standard_stats 
+	rename column Non_Penalty_xG_and_xAG to opposite_Non_Penalty_xG_and_xAG;
+alter table opposition_standard_stats 
+	rename column xG_per_90_Minutes to opposite_xG_per_90_Minutes;	
+alter table opposition_standard_stats 
+	rename column xAG_per_90_Minutes to opposite_xAG_per_90_Minutes;
+alter table opposition_standard_stats 
+	rename column xG_and_xAG_per_90_Minutes to opposite_xG_and_xAG_per_90_Minutes;
+alter table opposition_standard_stats 
+	rename column Non_Penalty_xG_per_90_Minutes to opposite_Non_Penalty_xG_per_90_Minutes;
+alter table opposition_standard_stats 
+	rename column Non_Penalty_xG_and_xAG_per_90_Minutes to opposite_Non_Penalty_xG_and_xAG_per_90_Minutes;
+alter table opposition_standard_stats 
+	rename column goals to opposite_goals;
+
+/* I see that in opposite table Iran has name IR Iran - needed to replace that name correctly */
+
+update 
+	opposition_standard_stats 
+set
+	opposite = 'Iran'
+where opposite = 'IR Iran';
+
+	
+alter table opposition_standard_stats 
+drop column id;
+
+create table team_and_opposition_stats as
+	(select *
+		from opposition_standard_stats oss 
+	join
+		squad_standard_stats sss 
+	on oss.opposite = sss.team
+);
+
+select *
+from team_and_opposition_stats; -- query only to check if we have 32 rows
+
+drop table team_and_opposition_stats; -- use only if you made some changes in tbale
+
+/* once agian all tables currentyly tu for analysis: */
+
+select * from team_and_opposition_stats; 
+
+select * from final_league_table;
+
+select * from match_by_match_stat;
+
+select * from player_stats ps ;
+
 
