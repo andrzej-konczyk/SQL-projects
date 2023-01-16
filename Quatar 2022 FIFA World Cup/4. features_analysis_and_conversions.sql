@@ -2,7 +2,8 @@ select * from team_and_opposition_stats;
 
 select * from final_league_table;
 
-select * from match_by_match_stat;
+select * from match_by_match_stat
+order by id asc;
 
 select * from player_stats ps ;
 
@@ -30,6 +31,8 @@ alter table player_stats
 	drop column xg_and_xag;
 alter table player_stats 
 	drop column non_penalty_xg_and_xag;
+
+-- now is needed to export data do csv and then start work with own visualization 
 	
 
 	
