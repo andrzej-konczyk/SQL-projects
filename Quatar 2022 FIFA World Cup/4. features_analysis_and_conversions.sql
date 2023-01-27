@@ -32,6 +32,17 @@ alter table player_stats
 alter table player_stats 
 	drop column non_penalty_xg_and_xag;
 
+/* exchange name of USA to United States*/
+
+
+update 
+	final_league_table
+set
+	team = 'United States'
+where team = 'USA';
+
+select * from final_league_table; -- to check if is fine
+
 -- now is needed to export data do csv and then start work with own visualization 
 	
 
