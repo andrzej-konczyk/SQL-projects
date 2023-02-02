@@ -386,6 +386,7 @@ FROM predicted_group_results
 ORDER BY group_name, rank;
 
 
+create table final_group as
 SELECT real_order.group_name, real_order.team, real_order.rank,predicted_order.rank as predicted_rank,real_order.total_points, real_order.total_goals, real_order.goal_diff, 
 		predicted_order.total_p_points, predicted_order.total_p_goals, predicted_order.p_goal_diff
 FROM real_order
