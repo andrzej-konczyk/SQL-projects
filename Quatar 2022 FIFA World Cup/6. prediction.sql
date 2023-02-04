@@ -47,8 +47,8 @@ select * from final_league_table; -- check if all is fine
 
 -- creation table which will be used for predition of results --
 create table opposit_team_results
-as select
-opposite, opposite_average_posession , opposite_goals_per_90_minutes , opposite_goals_excluding_penalties_per_90_minutes , opposite_xg_per_90_minutes , opposite_non_penalty_xg , team, average_posession , goals_per_90_minutes , goals_excluding_penalties_per_90_minutes , xg_per_90_minutes , non_penalty_xg 
+	as select
+		opposite, opposite_average_posession , opposite_goals_per_90_minutes , opposite_goals_excluding_penalties_per_90_minutes , opposite_xg_per_90_minutes , opposite_non_penalty_xg , team, average_posession , goals_per_90_minutes , goals_excluding_penalties_per_90_minutes , xg_per_90_minutes , non_penalty_xg 
 from team_and_opposition_stats; 
 -----------------------------------
 select * from opposit_team_results; -- check if all is fine
@@ -56,10 +56,10 @@ select * from opposit_team_results; -- check if all is fine
 -------------------------------
 -- creation table for direct macthes for future predictions - main table for direct matches
 create table direct_match 
-as
-select phase, team_1, goals_1 , total_xg_1 , posession_1 , team_2, goals_2 , total_xg_2 , posession_2 
-from match_by_match_stat
-order by id asc;
+	as
+		select phase, team_1, goals_1 , total_xg_1 , posession_1 , team_2, goals_2 , total_xg_2 , posession_2 
+			from match_by_match_stat
+		order by id asc;
 
 alter table direct_match
 add fifa_rank_1 integer;
@@ -69,20 +69,20 @@ add fifa_rank_2 integer;
 
 --update by fifa ranks
 UPDATE direct_match
-SET fifa_rank_1 = (
-SELECT fifa_rank
-FROM final_league_table
-WHERE final_league_table.team = direct_match.team_1
-)
+	SET fifa_rank_1 = (
+		SELECT fifa_rank
+		FROM final_league_table
+		WHERE final_league_table.team = direct_match.team_1
+	)
 WHERE fifa_rank_1 IS null;
 
 
 UPDATE direct_match
-SET fifa_rank_2 = (
-SELECT fifa_rank
-FROM final_league_table
-WHERE final_league_table.team = direct_match.team_2
-)
+	SET fifa_rank_2 = (
+		SELECT fifa_rank
+		FROM final_league_table
+		WHERE final_league_table.team = direct_match.team_2
+	)
 WHERE fifa_rank_2 IS null;
 
 select * from direct_match; -- check if we have all data

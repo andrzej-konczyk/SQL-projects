@@ -290,7 +290,102 @@ FROM
   SELECT_penalties;
 
 
+-- I add column with all next round teams
+ALTER TABLE p_r16_final
+ADD COLUMN next_round varchar(255);
+
+UPDATE p_r16_final
+SET next_round = 
+    CASE
+        WHEN winner != 'extra time' THEN winner
+        WHEN extra_time != 'penalties' THEN extra_time
+        ELSE penalties
+    END;
+
+   
 select * from p_r16_final;
+
+ALTER TABLE p_r16_final
+ADD COLUMN id serial PRIMARY KEY;
+
+
+-- create quaters table
+
+CREATE TABLE quaters (
+  team_1 varchar(255),
+  team_2 varchar(255),
+  weight_calc_1 float,
+  weight_calc_2 float,
+  id serial primary key
+  );
+ 
+
+INSERT INTO quaters (team_1)
+select next_round
+FROM p_r16_final 
+WHERE p_r16_final .id in (1,2,5,6);
+
+
+update quaters
+	set team_2=
+		case team_1
+			when 'USA' then 'Argentina'
+			when 'England' then 'France'
+			when 'Germany' then 'Brazil'
+			when 'Spain' then 'Switzerland'
+		end
+	where team_2 is null;
+
+-- now is time to add new wight_cals. I will do that as sum from previous round : it means, that if team A won against team B, then team A new weight calc is sum of weight calc A + bikes B
+-- here we have case of real match, so fo that particular case I will do prediction like in group stage
+
+---
+select * from direct_match 
+where phase = 'QF'
+and team_1 = 'England'
+
+---
+
+
+update quaters 
+	set weight_calc_1 =
+		case team_1
+			when 'USA' then (select weight_calc_1 + weight_calc_2 from p_r16_final where next_round = 'USA')
+			when 'Germany' then (select weight_calc_1 + weight_calc_2 from p_r16_final where next_round = 'Germany')
+			when 'Spain' then (select weight_calc_1 + weight_calc_2 from p_r16_final where next_round = 'Spain')
+			when 'England' then (select weight_calc_1 + weight_calc_2 from p_r16_final where next_round = 'England')
+		end
+	where weight_calc_1 is null;
+
+update quaters
+	set weight_calc_2 =
+		case team_2
+			when 'Argentina' then (select weight_calc_1 + weight_calc_2 from p_r16_final where next_round = 'Argentina')
+			when 'Brazil' then (select weight_calc_1 + weight_calc_2 from p_r16_final where next_round = 'Brazil')
+			when 'Switzerland' then (select weight_calc_1 + weight_calc_2 from p_r16_final where next_round = 'Switzerland')
+			when 'France' then (select weight_calc_1 + weight_calc_2 from p_r16_final where next_round = 'France')
+		end
+	where weight_calc_2 is null;
+
+select * from quaters 
+order by id
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
