@@ -368,7 +368,120 @@ update quaters
 	where weight_calc_2 is null;
 
 select * from quaters 
-order by id
+
+-- now let's predict results
+-- each next phase is harder than previous one - change rules from 0.2 in 90 min to 0.3 and from 0.1 in extra time to 0.15
+
+create table semi_final as
+WITH results AS (
+  SELECT 
+  	id,
+    team_1, 
+    weight_calc_1, 
+    team_2, 
+    weight_calc_2
+  FROM 
+    quaters
+),
+SELECT_winners AS (
+  select
+  	id,
+    team_1, 
+    weight_calc_1, 
+    team_2, 
+    weight_calc_2, 
+    CASE 
+      WHEN ABS(weight_calc_1 - weight_calc_2) > 0.3 THEN 
+        CASE 
+          WHEN weight_calc_1 > weight_calc_2 THEN team_1
+          ELSE team_2
+        END
+      ELSE 
+        'extra time' 
+    END AS winner, 
+    NULL AS extra_time, 
+    NULL AS penalties
+  FROM 
+    results
+), 
+SELECT_extra_time AS (
+  SELECT 
+  	id,
+    team_1, 
+    weight_calc_1, 
+    team_2, 
+    weight_calc_2, 
+    winner, 
+    CASE 
+      WHEN winner = 'extra time' AND ABS(weight_calc_1 - weight_calc_2) > 0.15 THEN 
+        CASE 
+          WHEN weight_calc_1 > weight_calc_2 THEN team_1
+          ELSE team_2
+        END
+      ELSE 
+        'penalties'
+    END AS extra_time, 
+    NULL AS penalties
+  FROM 
+    SELECT_winners
+), 
+SELECT_penalties AS (
+  SELECT 
+  	id,
+    team_1, 
+    weight_calc_1, 
+    team_2, 
+    weight_calc_2, 
+    winner, 
+    extra_time, 
+    CASE 
+      WHEN extra_time IS NULL THEN 
+        null
+      when extra_time is not null and ABS(weight_calc_1 - weight_calc_2) <= 0.15 then
+        CASE 
+          WHEN RANDOM() < 0.5 THEN team_1
+          ELSE team_2
+        END
+    END AS penalties
+  FROM 
+    SELECT_extra_time
+)
+SELECT 
+  id,
+  team_1, 
+  weight_calc_1, 
+  team_2, 
+  weight_calc_2, 
+  winner, 
+  extra_time, 
+  penalties
+FROM 
+  SELECT_penalties;
+ 
+ -- clean - se null when winner is not extra time
+ 
+update semi_final
+set extra_time = null
+where winner != 'extra time';
+
+-- I add column with all next round teams
+ALTER TABLE semi_final
+ADD COLUMN next_round varchar(255);
+
+UPDATE semi_final
+SET next_round = 
+    CASE
+        WHEN winner != 'extra time' THEN winner
+        WHEN extra_time != 'penalties' THEN extra_time
+        ELSE penalties
+    END;
+
+   
+select * from semi_final 
+order by id ;
+
+
+
 
 
 
