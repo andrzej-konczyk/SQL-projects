@@ -481,6 +481,195 @@ select * from semi_final
 order by id ;
 
 
+-- next step, semi-finals pairs
+
+CREATE TABLE semi_final_pairs
+ (team_1 varchar(255),
+  team_2 varchar(255),
+  weight_calc_1 float,
+  weight_calc_2 float,
+  id serial primary key
+  );
+ 
+  INSERT INTO semi_final_pairs(team_1)
+select next_round
+FROM semi_final
+WHERE semi_final.id in(1,2);
+
+
+-- base on semi_final table:
+update semi_final_pairs 
+	set team_2=
+		case team_1
+			when 'Argentina' then 'Brazil'
+			when 'France' then 'Switzerland'
+		end
+	where team_2 is null;
+
+
+-- fill in weight calcs
+
+update semi_final_pairs 
+	set weight_calc_1 =
+		case team_1
+			when 'France'then (select weight_calc_1 + weight_calc_2 from semi_final where next_round = 'France')
+			when 'Argentina'then (select weight_calc_1 + weight_calc_2 from semi_final where next_round = 'Argentina')
+		end
+	where weight_calc_1 is null;
+
+update semi_final_pairs
+	set weight_calc_2 =
+		case team_2
+			when 'Brazil' then (select weight_calc_1 + weight_calc_2 from semi_final where next_round = 'Brazil')
+			when 'Switzerland' then (select weight_calc_1 + weight_calc_2 from semi_final where next_round = 'Switzerland')
+		end
+	where weight_calc_2 is null;
+
+-- let's have winners - new rule, win 90 min when 0.4 diff, extra time when 0.2 diff
+
+create table semi_final_results as
+WITH results AS (
+  SELECT 
+  	id,
+    team_1, 
+    weight_calc_1, 
+    team_2, 
+    weight_calc_2
+  FROM 
+    semi_final_pairs
+),
+SELECT_winners AS (
+  select
+  	id,
+    team_1, 
+    weight_calc_1, 
+    team_2, 
+    weight_calc_2, 
+    CASE 
+      WHEN ABS(weight_calc_1 - weight_calc_2) > 0.4THEN 
+        CASE 
+          WHEN weight_calc_1 > weight_calc_2 THEN team_1
+          ELSE team_2
+        END
+      ELSE 
+        'extra time' 
+    END AS winner, 
+    NULL AS extra_time, 
+    NULL AS penalties
+  FROM 
+    results
+), 
+SELECT_extra_time AS (
+  SELECT 
+  	id,
+    team_1, 
+    weight_calc_1, 
+    team_2, 
+    weight_calc_2, 
+    winner, 
+    CASE 
+      WHEN winner = 'extra time' AND ABS(weight_calc_1 - weight_calc_2) > 0.2 THEN 
+        CASE 
+          WHEN weight_calc_1 > weight_calc_2 THEN team_1
+          ELSE team_2
+        END
+      ELSE 
+        'penalties'
+    END AS extra_time, 
+    NULL AS penalties
+  FROM 
+    SELECT_winners
+), 
+SELECT_penalties AS (
+  SELECT 
+  	id,
+    team_1, 
+    weight_calc_1, 
+    team_2, 
+    weight_calc_2, 
+    winner, 
+    extra_time, 
+    CASE 
+      WHEN extra_time IS NULL THEN 
+        null
+      when extra_time is not null and ABS(weight_calc_1 - weight_calc_2) <= 0.15 then
+        CASE 
+          WHEN RANDOM() < 0.5 THEN team_1
+          ELSE team_2
+        END
+    END AS penalties
+  FROM 
+    SELECT_extra_time
+)
+SELECT 
+  id,
+  team_1, 
+  weight_calc_1, 
+  team_2, 
+  weight_calc_2, 
+  winner, 
+  extra_time, 
+  penalties
+FROM 
+  SELECT_penalties;
+ 
+ 
+  -- clean - se null when winner is not extra time
+ 
+update semi_final_results
+set extra_time = null
+where winner != 'extra time';
+
+select * from semi_final_results 
+
+-- now is time to create final match and 3rd place match 
+
+--final match 
+
+-- next step, semi-finals pairs
+
+CREATE TABLE final_pair
+ (team_1 varchar(255),
+  team_2 varchar(255),
+  weight_calc_1 float,
+  weight_calc_2 float
+  );
+ 
+  INSERT INTO final_pair(team_1)
+select winner
+FROM semi_final_results
+WHERE semi_final_results.id ='1'
+
+select * from final_pair
+
+
+-- base on semi_final table:
+update final_pair
+	set team_2= 'Brazil'
+	where team_2 is null;
+
+
+-- fill in weight calcs
+
+update final_pair
+	set weight_calc_1 =
+		case team_1
+			when 'France'then (select weight_calc_1 + weight_calc_2 from semi_final_results where winner='France')
+		end
+	where weight_calc_1 is null;
+
+update final_pair
+	set weight_calc_2 =
+		case team_2
+			when 'Brazil' then (select weight_calc_1 + weight_calc_2 from semi_final_results where winner = 'Brazil')
+		end
+	where weight_calc_2 is null;
+
+
+
+
+
+
 
 
 
