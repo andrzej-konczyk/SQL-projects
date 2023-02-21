@@ -592,7 +592,7 @@ SELECT_penalties AS (
     CASE 
       WHEN extra_time IS NULL THEN 
         null
-      when extra_time is not null and ABS(weight_calc_1 - weight_calc_2) <= 0.15 then
+      when extra_time is not null and ABS(weight_calc_1 - weight_calc_2) <= 0.2 then
         CASE 
           WHEN RANDOM() < 0.5 THEN team_1
           ELSE team_2
@@ -614,7 +614,7 @@ FROM
   SELECT_penalties;
  
  
-  -- clean - se null when winner is not extra time
+  -- clean - see null when winner is not extra time
  
 update semi_final_results
 set extra_time = null
@@ -666,16 +666,235 @@ update final_pair
 	where weight_calc_2 is null;
 
 
+-- let's have winners - new rule, win 90 min when 0.5 diff, extra time when 0.3 diff - final pair
+
+create table final_results as
+WITH results AS (
+  SELECT 
+    team_1, 
+    weight_calc_1, 
+    team_2, 
+    weight_calc_2
+  FROM 
+    final_pair
+),
+SELECT_winners AS (
+  select
+    team_1, 
+    weight_calc_1, 
+    team_2, 
+    weight_calc_2, 
+    CASE 
+      WHEN ABS(weight_calc_1 - weight_calc_2) > 0.5 THEN 
+        CASE 
+          WHEN weight_calc_1 > weight_calc_2 THEN team_1
+          ELSE team_2
+        END
+      ELSE 
+        'extra time' 
+    END AS winner, 
+    NULL AS extra_time, 
+    NULL AS penalties
+  FROM 
+    results
+), 
+SELECT_extra_time AS (
+  SELECT 
+    team_1, 
+    weight_calc_1, 
+    team_2, 
+    weight_calc_2, 
+    winner, 
+    CASE 
+      WHEN winner = 'extra time' AND ABS(weight_calc_1 - weight_calc_2) > 0.3 THEN 
+        CASE 
+          WHEN weight_calc_1 > weight_calc_2 THEN team_1
+          ELSE team_2
+        END
+      ELSE 
+        'penalties'
+    END AS extra_time, 
+    NULL AS penalties
+  FROM 
+    SELECT_winners
+), 
+SELECT_penalties AS (
+  SELECT 
+    team_1, 
+    weight_calc_1, 
+    team_2, 
+    weight_calc_2, 
+    winner, 
+    extra_time, 
+    CASE 
+      WHEN extra_time IS NULL THEN 
+        null
+      when extra_time is not null and ABS(weight_calc_1 - weight_calc_2) <= 0.3 then
+        CASE 
+          WHEN RANDOM() < 0.5 THEN team_1
+          ELSE team_2
+        END
+    END AS penalties
+  FROM 
+    SELECT_extra_time
+)
+SELECT 
+  team_1, 
+  weight_calc_1, 
+  team_2, 
+  weight_calc_2, 
+  winner, 
+  extra_time, 
+  penalties
+FROM 
+  SELECT_penalties;
+ 
+ 
+ select * from final_results
+ 
+ --clean data - remove penalties from extra time section
+ 
+update final_results
+set extra_time = null
+where winner != 'extra time';
+
+select * from final_results
+
+-- The winner is Brazil !
+
+-- now let's check 3rd place game
+
+
+ CREATE TABLE _3rd_place_pair
+ (team_1 varchar(255),
+  team_2 varchar(255),
+  weight_calc_1 float,
+  weight_calc_2 float
+  );
+
+
+INSERT INTO _3rd_place_pair(team_1)
+select 
+	case 
+		when team_1 = winner then team_2
+		when team_2 = winner then team_1 
+	end as team_1
+FROM semi_final_results
+WHERE semi_final_results.id ='1';
+
+-- base on semi_final results:
+update _3rd_place_pair
+	set team_2= 'Argentina'
+	where team_2 is null;
+
+
+-- fill in weight calcs
+
+update _3rd_place_pair
+	set weight_calc_1 =
+		case team_1
+			when 'Switzerland' then (select weight_calc_1 + weight_calc_2 from semi_final where next_round = 'Switzerland')
+		end
+	where weight_calc_1 is null;
+
+
+update _3rd_place_pair
+	set weight_calc_2 =
+		case team_2
+			when 'Argentina' then (select weight_calc_1 + weight_calc_2 from semi_final where next_round = 'Argentina')
+		end
+	where weight_calc_2 is null;
 
 
 
+-- let's have winners - new rule, win 90 min when 0.5 diff, extra time when 0.3 diff - 3rd place pair
+
+create table third_place_results as
+WITH results AS (
+  SELECT 
+    team_1, 
+    weight_calc_1, 
+    team_2, 
+    weight_calc_2
+  FROM 
+    _3rd_place_pair
+),
+SELECT_winners AS (
+  select
+    team_1, 
+    weight_calc_1, 
+    team_2, 
+    weight_calc_2, 
+    CASE 
+      WHEN ABS(weight_calc_1 - weight_calc_2) > 0.5 THEN 
+        CASE 
+          WHEN weight_calc_1 > weight_calc_2 THEN team_1
+          ELSE team_2
+        END
+      ELSE 
+        'extra time' 
+    END AS winner, 
+    NULL AS extra_time, 
+    NULL AS penalties
+  FROM 
+    results
+), 
+SELECT_extra_time AS (
+  SELECT 
+    team_1, 
+    weight_calc_1, 
+    team_2, 
+    weight_calc_2, 
+    winner, 
+    CASE 
+      WHEN winner = 'extra time' AND ABS(weight_calc_1 - weight_calc_2) > 0.3 THEN 
+        CASE 
+          WHEN weight_calc_1 > weight_calc_2 THEN team_1
+          ELSE team_2
+        END
+      ELSE 
+        'penalties'
+    END AS extra_time, 
+    NULL AS penalties
+  FROM 
+    SELECT_winners
+), 
+SELECT_penalties AS (
+  SELECT 
+    team_1, 
+    weight_calc_1, 
+    team_2, 
+    weight_calc_2, 
+    winner, 
+    extra_time, 
+    CASE 
+      WHEN extra_time IS NULL THEN 
+        null
+      when extra_time is not null and ABS(weight_calc_1 - weight_calc_2) <= 0.3 then
+        CASE 
+          WHEN RANDOM() < 0.5 THEN team_1
+          ELSE team_2
+        END
+    END AS penalties
+  FROM 
+    SELECT_extra_time
+)
+SELECT 
+  team_1, 
+  weight_calc_1, 
+  team_2, 
+  weight_calc_2, 
+  winner, 
+  extra_time, 
+  penalties
+FROM 
+  SELECT_penalties;
 
 
 
+select * from third_place_results;
 
-
-
-  
+-- Argentina got 3rd place after penalties :)
 
 
 

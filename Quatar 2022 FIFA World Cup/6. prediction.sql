@@ -293,7 +293,7 @@ UPDATE direct_match
 SET p_goals_1_against = p_goals_2, p_goals_2_against = p_goals_1
 where p_goals_1_against is null and p_goals_2_against is null and phase = 'GR';
 
-select TEAM_1, TEam_2, p_goals_1, p_goals_2 from direct_match
+select * from direct_match
 order by group_name asc;
 
 ---
