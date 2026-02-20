@@ -21,7 +21,7 @@ All columns are stored as `TEXT` here to simplify ingestion; no constraints are 
 
 #### 2.1. Staging ERD
 
-Staging layer relationships visualized (copy the image file into your Git repo alongside this README):
+Staging layer relationships visualized:
 
 ![Staging ERD](img1.png)
 
@@ -73,7 +73,7 @@ The top of `02_normalization.sql` also contains `DROP TABLE IF EXISTS ... CASCAD
 
 #### 4.1. 3NF ERD (final model)
 
-Final 3NF data model and lookup tables (copy the image file into your Git repo alongside this README):
+Final 3NF data model and lookup tables:
 
 ![3NF ERD](img2.png)
 
@@ -147,4 +147,5 @@ psql -U <user> -d <database> -f 04_reporting.sql
 ```
 
 Adjust the user, database name, and connection parameters as needed.
+
 
