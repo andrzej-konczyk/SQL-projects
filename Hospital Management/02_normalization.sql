@@ -184,7 +184,7 @@ CREATE TABLE treatment_types (
     base_cost NUMERIC(10,2)  -- average cost used as a reference value
 );
 
--- INSERTY DO SŁOWNIKÓW
+--INSERTS
 
 INSERT INTO specializations (specialization_name)
 SELECT DISTINCT specialization 
@@ -243,7 +243,7 @@ CREATE TABLE patients_2nf (
     date_of_birth         DATE,
     contact_number        TEXT,
     street_address        TEXT,
-    city                  TEXT,  -- w 3NF wyniesione do osobnej tabeli
+    city                  TEXT,
     registration_date     DATE,
     insurance_provider_id INT REFERENCES insurance_providers(provider_id),
     insurance_number      TEXT,
@@ -426,8 +426,9 @@ CREATE TABLE billing_3nf (
     payment_status TEXT
 );
 
--- INSERTY 3NF (poza patients - reszta bez zmian struktury)
+-- INSERTS
 INSERT INTO doctors_3nf          SELECT * FROM doctors_2nf;
 INSERT INTO appointments_3nf     SELECT * FROM appointments_2nf;
 INSERT INTO treatment_records_3nf SELECT * FROM treatment_records_2nf;
+
 INSERT INTO billing_3nf          SELECT * FROM billing_2nf;
